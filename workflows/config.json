@@ -1,9 +1,0 @@
-{
-    "clusters": {
-        "company-eu": {
-            "region": "eu-west-1",
-            "tenant": "company",
-            "cluster_id": "52d858c1-e310-42a1-a2a4-8ad7a0230087"
-        }
-    }
-}

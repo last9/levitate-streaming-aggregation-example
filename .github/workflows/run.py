@@ -28,6 +28,10 @@ def get_access_token(token_type):
     return r.json()["access_token"]
 
 def doit(action, config):
+    tenant = config["tenant"]
+    if not tenant:
+        raise Exception("Tenant not found in config")
+
     ret = []
     for cluster, config in config["clusters"].items():
         yaml_file = os.path.join(PIPELINES_PATH, cluster + ".yaml")
@@ -35,11 +39,11 @@ def doit(action, config):
             yaml = f.read()
         if action == "update":
             path = UPDATE_PATH.format(
-                tenant=config["tenant"], cluster_id=config["cluster_id"]
+                tenant=tenant, cluster_id=config["cluster_id"]
             )
         elif action == "validate":
             path = VALIDATE_PATH.format(
-                tenant=config["tenant"], cluster_id=config["cluster_id"]
+                tenant=tenant, cluster_id=config["cluster_id"]
             )
         url = APP_URL + path
         r = requests.post(
@@ -47,10 +51,11 @@ def doit(action, config):
             data=yaml,
             headers={
                 "region": config["region"],
-                "tenant": config["tenant"],
+                "tenant": tenant,
                 TOKEN_HEADER: "Bearer {}".format(get_access_token("write")),
             },
         )
+        print(r.text, url)
         if r.status_code > 201:
             ret.append((cluster, r.text))
     if ret:
@@ -60,18 +65,22 @@ def doit(action, config):
         exit(1)
     else:
         print(f"{action} successful")
-        
+
 def get_sap(config):
+    tenant = config["tenant"]
+    if not tenant:
+        raise Exception("Tenant not found in config")
+
     for cluster, config in config["clusters"].items():
         path = UPDATE_PATH.format(
-            tenant=config["tenant"], cluster_id=config["cluster_id"]
+            tenant=tenant, cluster_id=config["cluster_id"]
         )
         url = APP_URL + path
         r = requests.get(
             url,
             headers={
                 "region": config["region"],
-                "tenant": config["tenant"],
+                "tenant": tenant,
                 TOKEN_HEADER: "Bearer {}".format(get_access_token("read")),
             },
         )
@@ -84,7 +93,7 @@ def get_sap(config):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("action", choices=["update", "validate", "get"])
-    parser.add_argument("--config", default=CONFIG_PATH)
+    parser.add_argument("--config") # , default=CONFIG_PATH)
     args = parser.parse_args()
     with open(args.config) as f:
         config = json.load(f)
@@ -92,6 +101,6 @@ def main():
         get_sap(config)
         return
     doit(args.action, config)
-    
+
 if __name__ == "__main__":
     main()

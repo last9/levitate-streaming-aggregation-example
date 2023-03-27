@@ -12,18 +12,18 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-      
+
     - name: Setup Python
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
-        
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install requests
-        
+
     - name: Run Python script
       run: |
         cd .github/workflows
-        PIPELINES_PATH=${{ github.workspace }} WRITE_REFRESH_TOKEN="PASTE YOUR TOKEN HERE" python run.py update --config config.json
+        PIPELINES_PATH=${{ github.workspace }} WRITE_REFRESH_TOKEN="${{ secrets.WRITE_REFRESH_TOKEN }}" python run.py update --config ${{ github.workspace}}/config.json
