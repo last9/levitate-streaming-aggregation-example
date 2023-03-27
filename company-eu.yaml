@@ -1,0 +1,4 @@
+- promql: 'sum(http_requests_total{label=~".*"})[1m]'
+  as: http_requests_total_sum
+- promql: 'sum(http_requests_total{job="joba"})[1m]'
+  as: http_requests_total_joba_sum
