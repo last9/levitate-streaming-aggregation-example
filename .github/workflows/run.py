@@ -55,7 +55,7 @@ def doit(action, config):
                 TOKEN_HEADER: "Bearer {}".format(get_access_token("write")),
             },
         )
-        print(r.text, url)
+
         if r.status_code > 201:
             ret.append((cluster, r.text))
     if ret:
