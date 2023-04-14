@@ -23,7 +23,7 @@ This is present in [config.json](.github/workflows/config.json)
 
 ## Aggregations file
 
-The aggregations are stored in a file called `cluser-name.yaml` in the root of the repository.
+The aggregations are stored in a file called `cluser-name.yaml` in the root of the repository. There is one file per Levitate cluster. 
 
 ### How to define the streaming aggregated metric?
 
