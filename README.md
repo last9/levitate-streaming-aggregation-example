@@ -1,6 +1,8 @@
-# cs-streaming-aggregation-automation
+# levitate-streaming-aggregation-automation
 
 This is an example repository which stores the streaming-aggregation config, as well as aggregation pipelines to be executed on the metrics. Feel free to fork.
+
+Read more about streaming aggregates in Levitate [here](https://docs.last9.io/docs/streaming-aggregations).
 
 ## Config file
 
@@ -21,4 +23,28 @@ This is present in [config.json](.github/workflows/config.json)
 
 ## Aggregations file
 
-The aggregations are stored in a file called `cluser-name.yaml' in the root of the repository.
+The aggregations are stored in a file called `cluser-name.yaml` in the root of the repository. There is one file per Levitate cluster. 
+
+### How to define the streaming aggregated metric?
+
+Update the `cluser-name.yaml` file with as follows:
+
+```yaml
+- promql: 'sum2 by (stack, le) (http_requests_duration_seconds_bucket{service="pushnotifs"}[1m])'
+  as: aggregated_http_requests_duration_seconds_bucket
+```
+
+`promql` is the definition of the aggregated metric.
+`as` is the name of the new aggregated metric available for further querying.
+
+### Supported functions
+
+| Function Name | Description                                |
+| ------------- | ------------------------------------------ |
+| sum           | Total to be used for other metric types    |
+| count         | A count of the number of samples.          |
+| max           | The Maximum value of the samples           |
+| sum2          | Sum, but for counters and reset awareness. |
+| increase      | The increase in counter value.             |
+| min           | The minimum value of the samples           |
+| avg           | The average value of the samples.          |
