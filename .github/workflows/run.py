@@ -126,6 +126,9 @@ def do_macros(action, config):
         if "macros" not in config:
             continue
 
+        if config["macros"] == "":
+                continue
+
         macro_file = os.path.join(PIPELINES_PATH, config["macros"])
         with open(macro_file) as f:
             macroBody = f.read()
