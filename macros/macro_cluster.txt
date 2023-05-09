@@ -3,3 +3,7 @@ function percentile(p, metric) {
         let filter =  {cluster=clusterName,status="200"}
         return histogram_quantile(p, sum(rate(metric{filter}[5m])) by (le))
 }
+
+function job_rate5m(metric) {
+  return sum without (instance, method, controller, status_code) \ (rate (metric [5m]))
+}
