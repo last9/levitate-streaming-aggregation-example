@@ -1,0 +1,5 @@
+function percentile(p, metric) {
+        let clusterName = "alpha-tsdb.last9.io"
+        let filter =  {cluster=clusterName,status="200"}
+        return histogram_quantile(p, sum(rate(metric{filter}[5m])) by (le))
+}

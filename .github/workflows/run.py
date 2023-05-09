@@ -9,6 +9,8 @@ ACCESS_TOKEN_PATH = "/v4/oauth/access_token"
 CONFIG_PATH = "config.json"
 UPDATE_PATH = "/v2/leveetate/org/{tenant}/v1/mgmt/tenant/{tenant}/clusters/{cluster_id}/events/sap"
 VALIDATE_PATH = "/v2/leveetate/org/{tenant}/v1/mgmt/tenant/{tenant}/clusters/{cluster_id}/events/validate_sap"
+VALIDATE_MACROS_PATH = "/v2/leveetate/org/{tenant}/v1/mgmt/macros/validate"
+MACROS_PATH= "/v2/leveetate/org/{tenant}/v1/mgmt/tenant/{tenant}/clusters/{cluster_id}/macros"
 TOKEN_HEADER = "X-LAST9-API-TOKEN"
 PIPELINES_PATH = os.environ.get("PIPELINES_PATH", ".")
 
@@ -90,6 +92,79 @@ def get_sap(config):
             print(f"SAP for {cluster}:")
             print(r.text)
 
+def get_macros(config):
+    tenant = config["tenant"]
+    if not tenant:
+        raise Exception("Tenant not found in config")
+
+    for cluster, config in config["clusters"].items():
+        path = MACROS_PATH.format(
+            tenant=tenant, cluster_id=config["cluster_id"]
+        )
+        url = APP_URL + path
+        r = requests.get(
+            url,
+            headers={
+                "region": config["region"],
+                "tenant": tenant,
+                TOKEN_HEADER: "Bearer {}".format(get_access_token("read")),
+            },
+        )
+        if r.status_code != 200:
+            print(f"Failed to get macros for {cluster}")
+        else:
+            print(f"mscros for {cluster}:")
+            print(r.text)
+
+def do_macros(action, config):
+    tenant = config["tenant"]
+    if not tenant:
+        raise Exception("Tenant not found in config")
+
+    ret = []
+    for cluster, config in config["clusters"].items():
+        macro_file = os.path.join(PIPELINES_PATH, config["macros"])
+        with open(macro_file) as f:
+            macroBody = f.read()
+        if action == "update":
+            path = MACROS_PATH.format(
+                tenant=tenant, cluster_id=config["cluster_id"]
+            )
+            r = requests.post(
+                APP_URL + path,
+                data=macroBody,
+                headers={
+                    "region": config["region"],
+                    "tenant": tenant,
+                    TOKEN_HEADER: "Bearer {}".format(get_access_token("write")),
+                },
+            )
+        elif action == "validate":
+            path = VALIDATE_MACROS_PATH.format(
+                tenant=tenant,
+            )
+            r = requests.get(
+                APP_URL + path,
+                data=macroBody,
+                headers={
+                    "region": config["region"],
+                    "tenant": tenant,
+                    TOKEN_HEADER: "Bearer {}".format(get_access_token("write")),
+                },
+            )
+
+        if r.status_code > 201:
+            ret.append((cluster, r.text))
+    if ret:
+        print(f"{action} failed for the following clusters:")
+        for cluster, error in ret:
+            print(cluster, error)
+        exit(1)
+    else:
+        print(f"{action} successful")
+
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("action", choices=["update", "validate", "get"])
@@ -99,8 +174,10 @@ def main():
         config = json.load(f)
     if args.action == "get":
         get_sap(config)
+        get_macros(config)
         return
     doit(args.action, config)
+    do_macros(args.action, config)
 
 if __name__ == "__main__":
     main()
