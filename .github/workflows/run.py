@@ -123,6 +123,9 @@ def do_macros(action, config):
 
     ret = []
     for cluster, config in config["clusters"].items():
+        if "macros" not in config:
+            continue
+
         macro_file = os.path.join(PIPELINES_PATH, config["macros"])
         with open(macro_file) as f:
             macroBody = f.read()
