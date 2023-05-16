@@ -4,7 +4,7 @@
         "cluster-foo": {
             "region": "eu-west-1",
             "cluster_id": "72d858c1-e310-42a1-a2a4-8ad7a0230087",
-            "macros": "macros/macro_cluster.txt"
+            "macros": "macros/defaults.macro"
         }
     }
 }
