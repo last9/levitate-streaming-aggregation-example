@@ -9,7 +9,7 @@ ACCESS_TOKEN_PATH = "/v4/oauth/access_token"
 CONFIG_PATH = "config.json"
 UPDATE_PATH = "/v2/leveetate/org/{tenant}/v1/mgmt/tenant/{tenant}/clusters/{cluster_id}/events/sap"
 VALIDATE_PATH = "/v2/leveetate/org/{tenant}/v1/mgmt/tenant/{tenant}/clusters/{cluster_id}/events/validate_sap"
-VALIDATE_MACROS_PATH = "/v2/leveetate/org/{tenant}/v1/mgmt/macros/validate"
+VALIDATE_MACROS_PATH = "/v2/leveetate/org/{tenant}/v1/mgmt/macros/tenant/{tenant}validate"
 MACROS_PATH= "/v2/leveetate/org/{tenant}/v1/mgmt/tenant/{tenant}/clusters/{cluster_id}/macros"
 TOKEN_HEADER = "X-LAST9-API-TOKEN"
 PIPELINES_PATH = os.environ.get("PIPELINES_PATH", ".")
@@ -149,7 +149,7 @@ def do_macros(action, config):
             path = VALIDATE_MACROS_PATH.format(
                 tenant=tenant,
             )
-            r = requests.get(
+            r = requests.post(
                 APP_URL + path,
                 data=macroBody,
                 headers={
